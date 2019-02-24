@@ -1,0 +1,301 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "comet helper",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "how can i whoosh",
+                        "what can comet helper do",
+                        "what can you do"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "roomIntent",
+                    "slots": [
+                        {
+                            "name": "building",
+                            "type": "LIST_OF_BUILDINGS"
+                        }
+                    ],
+                    "samples": [
+                        "are there rooms in {building}",
+                        "find me a room in {building}",
+                        "is there a room open in {building}"
+                    ]
+                },
+                {
+                    "name": "calendarIntent",
+                    "slots": [
+                        {
+                            "name": "date",
+                            "type": "LIST_OF_DATES"
+                        }
+                    ],
+                    "samples": [
+                        "when are {date}",
+                        "when does {date}",
+                        "when will {date} be",
+                        "what day is {date}",
+                        "when is {date}"
+                    ]
+                },
+                {
+                    "name": "parkingIntent",
+                    "slots": [
+                        {
+                            "name": "parkingStructure",
+                            "type": "LIST_OF_PARKING_STRUCTURES"
+                        }
+                    ],
+                    "samples": [
+                        "are there any spaces in {parkingStructure}",
+                        "is there any space in {parkingStructure}",
+                        "is there parking open in {parkingStructure}"
+                    ]
+                },
+                {
+                    "name": "officeHoursIntent",
+                    "slots": [
+                        {
+                            "name": "office",
+                            "type": "LIST_OF_OFFICES"
+                        }
+                    ],
+                    "samples": [
+                        "what time is {office} open",
+                        "when is {office} open"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "LIST_OF_BUILDINGS",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "ecsw"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ecss"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ecsn"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "LIST_OF_DATES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "classes end",
+                                "synonyms": [
+                                    "last day of classes"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "registration open"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "second session"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "first session"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "classes begin"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "final exams"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "spring break"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "LIST_OF_OFFICES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "the market at vcb"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "zatar"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "subway"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "starbucks"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "smash'd"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the pub"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "panda express"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "moes"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the market at su"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "chic-fil-a"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ben and jerry's"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the market at ssa"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "papa john's pizza"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the market at rhw"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "dining hall west"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ihop"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "einstein bros bagels"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the market at jsom"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "jason's deli"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "food truck park"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "novel brew"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "the market at ecsw"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "lemma coffee roasters"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "LIST_OF_PARKING_STRUCTURES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "ps4",
+                                "synonyms": [
+                                    "ecsw parking"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ps1"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "ps3",
+                                "synonyms": [
+                                    "ihop parking"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
