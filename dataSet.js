@@ -37,7 +37,12 @@ module.exports = {
     'second session': 'the second eight week session begins monday, march eleventh',
     'first session': 'the first eight week session begins monday, january fourteenth',
     'classes begin': 'the full term session begins monday, january fourteenth',
-    'final exams': 'final exams begin monday, may sixth and ends saturday, may eleventh',
-    'spring break': 'spring break begins monday, march eigth and ends sunday, march twenty fourth'
+    'utd final exams': 'final exams begin monday, may sixth and ends saturday, may eleventh',
+    'utd spring break': 'spring break begins monday, march eigth and ends sunday, march twenty fourth'
+  },
+  'LIST_OF_BUILDINGS': {
+    'ecss': 'there is sixty three rooms in e c s south',
+    'ecsw': 'there is eighty four rooms in e c s west',
+    'ecsn': 'there is ninety five rooms in e c s north'
   }
 }
