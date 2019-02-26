@@ -14,7 +14,6 @@
                 {
                     "name": "AMAZON.HelpIntent",
                     "samples": [
-                        "how can i whoosh",
                         "what can comet helper do",
                         "what can you do"
                     ]

@@ -11,6 +11,7 @@ const languageStrings = {
   PARKING: dataSet.PARKING_STRUCTURES,
   DINING: dataSet.DINING_OPEN_TIMES,
   DATES: dataSet.DATES,
+  ROOMS: dataSet.BUILDINGS,
   SKILL_NAME:"Comet Helper",
   WELCOME_MESSAGE: "Hi, I'm %s. You can ask me if there are rooms available, or what time dining hall west is open, and other things... How can I help?",
   WELCOME_REPROMPT: 'For instructions on what to say, please say help me.',
@@ -21,20 +22,32 @@ const languageStrings = {
   PARKING_NOT_FOUND_MESSAGE: "I'm sorry, I currently do not know.",
   DINING_NOT_FOUND_MESSAGE: "I'm sorry, I currently do not know.",
   DATES_NOT_FOUND_MESSAGE: "I'm sorry, I currently do not know.",
-  REPROMT_MESSAGE:"What else can I help with?"
+  REPROMPT_MESSAGE:"What else can I help with?"
 }
 
 const LaunchRequestHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
-    },
-    handle(handlerInput) {
-        const speechText = languageStrings.WELCOME_MESSAGE;
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .getResponse();
-    }
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+    const parking = requestAttributes.t(Object.keys(dataSet.PARKING_STRUCTURES));
+    const dining = requestAttributes.t(Object.keys(dataSet.DINING_OPEN_TIMES));
+    const dates = requestAttributes.t(Object.keys(dataSet.DATES));
+    const rooms = requestAttributes.t(Object.keys(dataSet.BUILDINGS));
+
+    const speakOutput = requestAttributes.t('WELCOME_MESSAGE', requestAttributes.t('SKILL_NAME'), dates);
+    const repromptOutput = requestAttributes.t('WELCOME_REPROMPT');
+
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const calendarIntentHandler = {
@@ -43,12 +56,11 @@ const calendarIntentHandler = {
             && handlerInput.requestEnvelope.request.intent.name === 'calendarIntent';
     },
     handle(handlerInput) {
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        const dateSlot=handlerInput.requestEnvelope.request.intent.slots.dates;
+        const roomSlot=handlerInput.requestEnvelope.request.intent.slots.dates;
         let dateName;
-
         if(dateSlot&&dateSlot.value){
             dateName=dateSlot.value.toLowerCase();
         }
@@ -62,12 +74,12 @@ const calendarIntentHandler = {
             handlerInput.attributesManager.sessionAttributes(sessionAttributes);
 
             return handlerInput.responseBuilder
-            .speak(sessionAttributes.speakOutput) // .reprompt(sessionAttributes.repromptSpeech)
-            .getResponse();
+              .speak(sessionAttributes.speakOutput) // .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
         }
         else{
             speakOutput=requestAttributes.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
-            const repromptSpeech=requestAttributes.t(languageStrings.NOT_FOUND_REPROMT);
+            const repromptSpeech=requestAttributes.t(languageStrings.NOT_FOUND_REPROMPT);
             speakOutput+=" "+repromptSpeech;
 
         sessionAttributes.speakOutput = speakOutput; //saving speakOutput to attributes, so we can use it to repeat
@@ -75,218 +87,242 @@ const calendarIntentHandler = {
 
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-    return handlerInput.responseBuilder
-        .speak(sessionAttributes.speakOutput)
-        .reprompt(sessionAttributes.repromptSpeech)
-        .getResponse();
+        return handlerInput.responseBuilder
+            .speak(sessionAttributes.speakOutput)
+            .reprompt(sessionAttributes.repromptSpeech)
+            .getResponse();
         }
     }
 };
 
-const officeTimeIntentHandler={
-        canHandle(handlerInput) {
+const buildingIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'roomIntent';
+    },
+    handle(handlerInput) {
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+        const buildingSlot=handlerInput.requestEnvelope.request.intent.slots.building;
+        let buildingName;
+        if(dateSlot&&dateSlot.value){
+            dateName=dateSlot.value.toLowerCase();
+        }
+
+        const myBuilding=requestAttributes.t(languageStrings.ROOMS);
+        const building=myBuilding[buidlingName];
+        let speakOutput="";
+
+        if(building){
+            sessionAttributes.speakOutput=building;
+            handlerInput.attributesManager.sessionAttributes(sessionAttributes);
+
+            return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput) // .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
+        }
+        else{
+          speakOutput=requestAttributes.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
+          const repromptSpeech=requestAttributes.t(languageStrings.REPROMPT_MESSAGE);
+          speakOutput+=" "+repromptSpeech;
+
+          sessionAttributes.speakOutput = speakOutput; //saving speakOutput to attributes, so we can use it to repeat
+          sessionAttributes.repromptSpeech = repromptSpeech;
+
+          handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+          return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput)
+              .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
+        }
+    }
+};
+
+const officeHoursIntentHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'officeHoursIntent';
     },
     handle(handlerInput) {
-            const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
         const officeSlot=handlerInput.requestEnvelope.request.intent.slots.office;
         let officeName;
-
         if(officeSlot&&officeSlot.value){
             officeName=officeSlot.value.toLowerCase();
         }
 
         const myOffice=requestAttributes.t(languageStrings.DINING);
         const office=myOffice[officeName];
+        let speakOutput="";
 
         if(office){
-            let speechOutput=office;
-            this.attributes.repromptSpeech=this.t(languageStrings.REPEAT_MESSAGE);
+            sessionAttributes.speakOutput=office;
+            handlerInput.attributesManager.sessionAttributes(sessionAttributes);
 
-            const speechText=speechOutput;
-            this.emit(':resposneReady');
+            return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput) // .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
         }
         else{
-            let speechOutput=this.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
-            const repromptSpeech=this.t(languageStrings.NOT_FOUND_REPROMT);
-            speechOutput+=" "+repromptSpeech;
+          speakOutput=requestAttributes.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
+          const repromptSpeech=requestAttributes.t(languageStrings.REPROMPT_MESSAGE);
+          speakOutput+=" "+repromptSpeech;
 
-            this.attributes.speechOutput=speechOutput;
-            this.attributes.repromptSpeech=repromptSpeech;
-            const speechText=speechOutput;
+          sessionAttributes.speakOutput = speakOutput; //saving speakOutput to attributes, so we can use it to repeat
+          sessionAttributes.repromptSpeech = repromptSpeech;
 
-            this.resonse.speach(speechOutput).listen(repromptSpeech);
-            this.emit(':responseReady');
+          handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+          return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput)
+              .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
         }
-        return handlerInput.responseBuilder
-//        .speak(speechText)
-        .reprompt(languageStrings.REPROMPT_MESSAGE)
-        .getResponse();
     }
-}
-const roomFinderIntentHandler={
-        canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && handlerInput.requestEnvelope.request.intent.name === 'roomIntent';
-    },
-    handle(handlerInput) {
-            const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+};
 
-        const buildingSlot=handlerInput.requestEnvelope.request.intent.slots.building;
-        let buildingName;
-
-        if(buildingSlot&&buildingSlot.value){
-            buildingName=buildingSlot.value.toLowerCase();
-        }
-
-        const myBuilding=requestAttributes.t(languageStrings.DINING);
-        const building=myBuilding[buildingName];
-
-        if(building){
-            let speechOutput=building;
-            this.attributes.repromptSpeech=this.t(languageStrings.REPEAT_MESSAGE);
-
-            const speechText=speechOutput;
-            this.emit(':resposneReady');
-        }
-        else{
-            let speechOutput=this.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
-            const repromptSpeech=this.t(languageStrings.NOT_FOUND_REPROMT);
-            speechOutput+=" "+repromptSpeech;
-
-            this.attributes.speechOutput=speechOutput;
-            this.attributes.repromptSpeech=repromptSpeech;
-            const speechText=speechOutput;
-
-            this.resonse.speach(speechOutput).listen(repromptSpeech);
-            this.emit(':responseReady');
-        }
-        return handlerInput.responseBuilder
-//        .speak(speechText)
-        .reprompt(languageStrings.REPROMPT_MESSAGE)
-        .getResponse();
-    }
-}
-const parkingSpaceIntentHandler={
-        canHandle(handlerInput) {
+const parkingIntentHandler = {
+    canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'parkingIntent';
     },
     handle(handlerInput) {
-            const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        const structureSlot=handlerInput.requestEnvelope.request.intent.slots.parkingSturcture;
-        let structureName;
-
-        if(structureSlot&&structureSlot.value){
-            structureName=structureSlot.value.toLowerCase();
+        const parkingSlot=handlerInput.requestEnvelope.request.intent.slots.parkingStructure;
+        let parkingName;
+        if(parkingSlot&&parkingSlot.value){
+            parkingName=parkingSlot.value.toLowerCase();
         }
 
-        const myParkingStructure=requestAttributes.t(languageStrings.PARKING);
-        const parkingStructure=myParkingStructure[structureName];
+        const myParking=requestAttributes.t(languageStrings.PARKING);
+        const parking=myParking[parkingName];
+        let speakOutput="";
 
-        if(parkingStructure){
-            let speechOutput=parkingStructure;
-            this.attributes.repromptSpeech=this.t(languageStrings.REPEAT_MESSAGE);
+        if(parking){
+            sessionAttributes.speakOutput=parking;
+            handlerInput.attributesManager.sessionAttributes(sessionAttributes);
 
-            const speechText=speechOutput;
-            this.emit(':resposneReady');
+            return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput) // .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
         }
         else{
-            let speechOutput=this.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
-            const repromptSpeech=this.t(languageStrings.NOT_FOUND_REPROMT);
-            speechOutput+=" "+repromptSpeech;
+          speakOutput=requestAttributes.t(languageStrings.DATES_NOT_FOUND_MESSAGE);
+          const repromptSpeech=requestAttributes.t(languageStrings.REPROMPT_MESSAGE);
+          speakOutput+=" "+repromptSpeech;
 
-            this.attributes.speechOutput=speechOutput;
-            this.attributes.repromptSpeech=repromptSpeech;
-            const speechText=speechOutput;
+          sessionAttributes.speakOutput = speakOutput; //saving speakOutput to attributes, so we can use it to repeat
+          sessionAttributes.repromptSpeech = repromptSpeech;
 
-            this.resonse.speach(speechOutput).listen(repromptSpeech);
-            this.emit(':responseReady');
+          handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+          return handlerInput.responseBuilder
+              .speak(sessionAttributes.speakOutput)
+              .reprompt(sessionAttributes.repromptSpeech)
+              .getResponse();
         }
-        return handlerInput.responseBuilder
-//        .speak(speechText)
-        .reprompt(languageStrings.REPROMPT_MESSAGE)
-        .getResponse();
     }
-}
-const HelpIntentHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+};
+
+
+const HelpHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
-    },
-    handle(handlerInput) {
-        const speechText = 'You can say hello to me! How can I help?';
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .getResponse();
-    }
+    const item = requestAttributes.t(getRandomItem(Object.keys(recipes.RECIPE_EN_US)));
+
+    sessionAttributes.speakOutput = requestAttributes.t('HELP_MESSAGE', item);
+    sessionAttributes.repromptSpeech = requestAttributes.t('HELP_REPROMPT', item);
+
+    return handlerInput.responseBuilder
+      .speak(sessionAttributes.speakOutput)
+      .reprompt(sessionAttributes.repromptSpeech)
+      .getResponse();
+  },
 };
-const CancelAndStopIntentHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
-            && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent'
-                || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
-    },
-    handle(handlerInput) {
-        const speechText = 'Goodbye!';
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .getResponse();
-    }
+
+const RepeatHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'AMAZON.RepeatIntent';
+  },
+  handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+    return handlerInput.responseBuilder
+      .speak(sessionAttributes.speakOutput)
+      .reprompt(sessionAttributes.repromptSpeech)
+      .getResponse();
+  },
 };
+
+const ExitHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent'
+                || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent');
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const speakOutput = requestAttributes.t('STOP_MESSAGE', requestAttributes.t('SKILL_NAME'));
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .getResponse();
+  },
+};
+
 const SessionEndedRequestHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
-    },
-    handle(handlerInput) {
-        // Any cleanup logic goes here.
-        return handlerInput.responseBuilder.getResponse();
-    }
+  canHandle(handlerInput) {
+    console.log("Inside SessionEndedRequestHandler");
+    return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
+  },
+  handle(handlerInput) {
+    console.log(`Session ended with reason: ${JSON.stringify(handlerInput.requestEnvelope)}`);
+    return handlerInput.responseBuilder.getResponse();
+  },
 };
 
-// The intent reflector is used for interaction model testing and debugging.
-// It will simply repeat the intent the user said. You can create custom handlers
-// for your intents by defining them above, then also adding them to the request
-// handler chain below.
-const IntentReflectorHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest';
-    },
-    handle(handlerInput) {
-        const intentName = handlerInput.requestEnvelope.request.intent.name;
-        const speechText = `You just triggered ${intentName}`;
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
-    }
-};
-
-// Generic error handling to capture any syntax or routing errors. If you receive an error
-// stating the request handler chain is not found, you have not implemented a handler for
-// the intent being invoked or included it in the skill builder below.
 const ErrorHandler = {
-    canHandle() {
-        return true;
-    },
-    handle(handlerInput, error) {
-        console.log(`~~~~ Error handled: ${error.message}`);
-        const speechText = `Sorry, I couldn't understand what you said. Please try again.`;
+  canHandle() {
+    return true;
+  },
+  handle(handlerInput, error) {
+    console.log(`Error handled: ${error.message}`);
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .getResponse();
-    }
+    return handlerInput.responseBuilder
+      .speak('Sorry, I can\'t understand the command. Please say again.')
+      .reprompt('Sorry, I can\'t understand the command. Please say again.')
+      .getResponse();
+  },
+};
+
+const LocalizationInterceptor = {
+  process(handlerInput) {
+    const localizationClient = i18n.use(sprintf).init({
+      lng: handlerInput.requestEnvelope.request.locale,
+      overloadTranslationOptionHandler: sprintf.overloadTranslationOptionHandler,
+      resources: languageStrings,
+      returnObjects: true
+    });
+
+    const attributes = handlerInput.attributesManager.getRequestAttributes();
+    attributes.t = function (...args) {
+      return localizationClient.t(...args);
+    };
+  },
 };
 
 // This handler acts as the entry point for your skill, routing all request and response
@@ -295,14 +331,15 @@ const ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        roomFinderIntentHandler,
-        officeTimeIntentHandler,
-        parkingSpaceIntentHandler,
-        officeTimeIntentHandler,
+        calendarIntentHandler,
+        buildingIntentHandler,
+        officeHoursIntentHandler,
+        parkingIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
-        IntentReflectorHandler) // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
-    .addErrorHandlers(
-        ErrorHandler)
+        IntentReflectorHandler)
+// make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+    .addRequestInterceptors(LocalizationInterceptor)
+    .addErrorHandlers(ErrorHandler)
     .lambda();

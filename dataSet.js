@@ -40,7 +40,7 @@ module.exports = {
     'utd final exams': 'final exams begin monday, may sixth and ends saturday, may eleventh',
     'utd spring break': 'spring break begins monday, march eigth and ends sunday, march twenty fourth'
   },
-  'LIST_OF_BUILDINGS': {
+  'BUILDINGS': {
     'ecss': 'there is sixty three rooms in e c s south',
     'ecsw': 'there is eighty four rooms in e c s west',
     'ecsn': 'there is ninety five rooms in e c s north'
